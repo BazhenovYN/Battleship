@@ -1,7 +1,6 @@
 import WebSocket from 'ws';
 
-import { ClientMessage, ServerMessage, ServerMessageType } from './types';
-import { dbData } from './types/dbData';
+import { ClientMessage, dbData, ServerMessage, ServerMessageType } from './types';
 
 export const decodeClientMessage = (rawMessage: string): ClientMessage => {
   const { type, data: rawData } = JSON.parse(rawMessage);
@@ -28,6 +27,14 @@ const adapt = (data: dbData): ServerMessage['data'] | null => {
       return { idGame: payload.game.index, idPlayer: payload.player.index };
     case ServerMessageType.UPDATE_WINNERS:
       return payload.map((user) => ({ name: user.name, wins: user.wins }));
+    case ServerMessageType.START_GAME: {
+      const player = payload.game.getPlayer(payload.user);
+      return { ships: player ? player.ships : [], currentPlayerIndex: payload.user.index };
+    }
+    case ServerMessageType.TURN:
+      return {
+        currentPlayer: payload.index,
+      };
     default:
       return null;
   }

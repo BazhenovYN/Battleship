@@ -27,7 +27,14 @@ type dbUpdateRoom = dbBase<ServerMessageType.UPDATE_ROOM> & {
 };
 
 type dbStartGame = dbBase<ServerMessageType.START_GAME> & {
-  payload: Game;
+  payload: {
+    game: Game;
+    user: User;
+  };
 };
 
-export type dbData = dbReg | dbUpdateWinners | dbCreateGame | dbUpdateRoom | dbStartGame;
+type dbTurn = dbBase<ServerMessageType.TURN> & {
+  payload: User;
+};
+
+export type dbData = dbReg | dbUpdateWinners | dbCreateGame | dbUpdateRoom | dbStartGame | dbTurn;

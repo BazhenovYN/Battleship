@@ -14,7 +14,7 @@ interface Ship {
   type: ShipType;
 }
 
-interface PlayerData {
+interface Player {
   user: User;
   ships: Ship[];
   // shots: Shot[];
@@ -22,35 +22,42 @@ interface PlayerData {
 
 export class Game {
   public readonly index: number;
-  private player1: PlayerData;
-  private player2: PlayerData;
-  private turn: User;
+  private players: Player[] = [];
+  public turn: User;
 
   constructor(players: User[], index: number) {
-    this.index = index;
     const [user1, user2] = players;
-    this.player1 = {
-      user: user1,
-      ships: [],
-    };
-    this.player2 = {
-      user: user2,
-      ships: [],
-    };
+    this.players.push({ user: user1, ships: [] });
+    this.players.push({ user: user2, ships: [] });
+
+    this.index = index;
+
     this.turn = this.getRandomUser(user1, user2);
   }
 
-  private getRandomUser(user1: User, user2: User) {
+  private getRandomUser(user1: User, user2: User): User {
     return Math.random() < 0.5 ? user1 : user2;
   }
 
-  private isGameReady() {
-    return this.player1.ships.length > 0 && this.player2.ships.length;
+  public isPlayersReady(): boolean {
+    return this.players.every((player) => player.ships.length > 0);
   }
 
-  public changePlayersTurn() {
-    this.turn = this.turn === this.player1.user ? this.player2.user : this.player1.user;
+  public changePlayersTurn(): User {
+    const index = this.players.findIndex((player) => player.user === this.turn);
+    const newIndex = index < this.players.length - 1 ? index + 1 : 0;
+    this.turn = this.players[newIndex].user;
+    return this.turn;
   }
 
-  public addShips(user: User, ships: Ship[]) {}
+  public getPlayer(user: User) {
+    return this.players.find((curr) => curr.user === user);
+  }
+
+  public addShips(user: User, ships: Ship[]): void {
+    const player = this.getPlayer(user);
+    if (player) {
+      player.ships = ships;
+    }
+  }
 }

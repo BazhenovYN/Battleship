@@ -13,7 +13,7 @@ export const startWsServer = (port: number) => {
   const wss = new WebSocketServer({ port });
 
   wss.on('connection', (ws) => {
-    console.log('New client connected!');
+    console.log('New client connected!', ws);
     let currentUser: User;
     let currentGame: Game;
     ws.on('close', () => console.log('Client has disconnected!'));
@@ -47,6 +47,13 @@ export const startWsServer = (port: number) => {
         }
         case ClientMessageType.ADD_SHIPS: {
           currentGame.addShips(currentUser, data.ships);
+          if (currentGame.isPlayersReady()) {
+            send(wss.clients, {
+              type: ServerMessageType.START_GAME,
+              payload: { game: currentGame, user: currentUser },
+            });
+            send(wss.clients, { type: ServerMessageType.TURN, payload: currentGame.turn });
+          }
           break;
         }
         case ClientMessageType.ATTACK:

@@ -44,9 +44,16 @@ type ServerMessageStartGame = ServerMessageBase<ServerMessageType.START_GAME> & 
   };
 };
 
+type ServerMessageTurn = ServerMessageBase<ServerMessageType.TURN> & {
+  data: {
+    currentPlayer: number;
+  };
+};
+
 export type ServerMessage =
   | ServerMessageReg
   | ServerMessageUpdateWinners
   | ServerMessageCreateGame
   | ServerMessageUpdateRoom
-  | ServerMessageStartGame;
+  | ServerMessageStartGame
+  | ServerMessageTurn;
