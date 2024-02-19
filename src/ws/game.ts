@@ -4,6 +4,7 @@ import { AttackResult, AttackStatus, ShipDirection, ShipPosition } from './types
 import { User } from './user';
 
 const FIELD_SIZE = 10;
+const SHIP_WIDTH = 1;
 
 interface Player {
   user: User;
@@ -18,6 +19,7 @@ export class Game {
   public readonly index: number;
   private players: Player[] = [];
   public turn: Player;
+  public gameOver: boolean = false;
 
   constructor(players: User[], index: number) {
     const [user1, user2] = players;
@@ -121,8 +123,8 @@ export class Game {
   private getKillZone(field: Field, ship: Ship): AttackResult[] {
     const killZone: AttackResult[] = [];
 
-    const width = ship.direction === ShipDirection.HORIZONTALLY ? ship.length : 1;
-    const height = ship.direction === ShipDirection.VERTICALLY ? ship.length : 1;
+    const width = ship.direction === ShipDirection.HORIZONTALLY ? ship.length : SHIP_WIDTH;
+    const height = ship.direction === ShipDirection.VERTICALLY ? ship.length : SHIP_WIDTH;
 
     const { x, y } = ship.position;
 
@@ -139,6 +141,14 @@ export class Game {
       }
     }
     return killZone;
+  }
+
+  public CheckGameOver(attacker: Player, victim: Player) {
+    const isGameOver = victim.ships.every((ship) => ship.isDestroyed);
+    if (isGameOver) {
+      this.gameOver = true;
+      attacker.user.win();
+    }
   }
 
   public attack(user: User, x: number, y: number): AttackResult[] {
@@ -164,6 +174,8 @@ export class Game {
     if (status === AttackStatus.SHOT) {
       return [{ x, y, status }];
     }
+
+    this.CheckGameOver(attacker, victim);
 
     return this.getKillZone(victim.field, ship);
   }

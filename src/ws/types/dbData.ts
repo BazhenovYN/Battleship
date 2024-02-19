@@ -48,6 +48,10 @@ type dbAttack = dbBase<ServerMessageType.ATTACK> & {
   };
 };
 
+type dbFinish = dbBase<ServerMessageType.FINISH> & {
+  payload: User;
+};
+
 export type dbData =
   | dbReg
   | dbUpdateWinners
@@ -55,4 +59,5 @@ export type dbData =
   | dbUpdateRoom
   | dbStartGame
   | dbTurn
-  | dbAttack;
+  | dbAttack
+  | dbFinish;

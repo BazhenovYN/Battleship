@@ -7,6 +7,7 @@ export class Ship {
   };
   public readonly direction: ShipDirection;
   public readonly length: number;
+  public isDestroyed: boolean = false;
   private hitCount: number = 0;
 
   constructor(params: ShipPosition) {
@@ -18,6 +19,7 @@ export class Ship {
   public shot() {
     this.hitCount += 1;
     if (this.hitCount >= this.length) {
+      this.isDestroyed = true;
       return AttackStatus.KILLED;
     }
     return AttackStatus.SHOT;

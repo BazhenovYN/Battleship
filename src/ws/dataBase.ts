@@ -13,21 +13,21 @@ export class DataBase {
   private maxRoomNumber: number = 0;
   private maxGameNumber: number = 0;
 
-  public createNewUser(name: string, password: string, connection: WebSocket) {
+  public createNewUser(name: string, password: string, connection: WebSocket): User {
     const newUser = new User(name, password, this.users.length, connection);
     this.users.push(newUser);
     return newUser;
   }
 
-  public getWinners() {
+  public getWinners(): User[] {
     return this.users;
   }
 
-  public getRooms() {
-    return this.rooms;
+  public getRooms(): Room[] {
+    return this.rooms.filter((room) => room.status === RoomStatus.OPEN);
   }
 
-  public createNewRoom(user: User) {
+  public createNewRoom(user: User): void {
     const newRoom = new Room(user, this.maxRoomNumber++);
     this.rooms.push(newRoom);
   }

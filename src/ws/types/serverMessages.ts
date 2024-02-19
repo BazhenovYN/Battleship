@@ -61,6 +61,12 @@ type ServerMessageAttack = ServerMessageBase<ServerMessageType.ATTACK> & {
   };
 };
 
+type ServerMessageFinish = ServerMessageBase<ServerMessageType.FINISH> & {
+  data: {
+    winPlayer: number;
+  };
+};
+
 export type ServerMessage =
   | ServerMessageReg
   | ServerMessageUpdateWinners
@@ -68,4 +74,5 @@ export type ServerMessage =
   | ServerMessageUpdateRoom
   | ServerMessageStartGame
   | ServerMessageTurn
-  | ServerMessageAttack;
+  | ServerMessageAttack
+  | ServerMessageFinish;

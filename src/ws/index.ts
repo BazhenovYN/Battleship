@@ -71,6 +71,7 @@ export const startWsServer = (port: number) => {
           if (!game.isUserAttack(currentUser)) {
             return;
           }
+
           const { x, y } = data;
           const results = game.attack(currentUser, x, y);
           const players = game.getPlayers();
@@ -91,6 +92,18 @@ export const startWsServer = (port: number) => {
               });
             });
           });
+
+          if (game.gameOver) {
+            players.forEach((player) => {
+              send(player.user.connection, {
+                type: ServerMessageType.FINISH,
+                payload: currentUser,
+              });
+            });
+
+            send(wss.clients, { type: ServerMessageType.UPDATE_WINNERS, payload: db.getWinners() });
+          }
+
           break;
         }
         case ClientMessageType.RANDOM_ATTACK:

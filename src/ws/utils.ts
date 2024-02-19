@@ -41,6 +41,10 @@ const adapt = (data: dbData): ServerMessage['data'] | null => {
         currentPlayer: payload.user.index,
         status: payload.status,
       };
+    case ServerMessageType.FINISH:
+      return {
+        winPlayer: payload.index,
+      };
     default:
       return null;
   }
