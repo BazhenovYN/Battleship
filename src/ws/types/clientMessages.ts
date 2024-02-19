@@ -1,4 +1,4 @@
-import { ClientMessageType, Ship } from './common';
+import { ClientMessageType, ShipPosition } from './common';
 
 type ClientMessageBase<T> = {
   type: T;
@@ -24,7 +24,7 @@ type ClientMessageAddUserToRoom = ClientMessageBase<ClientMessageType.ADD_USER_T
 type ClientMessageAddShip = ClientMessageBase<ClientMessageType.ADD_SHIPS> & {
   data: {
     gameId: number;
-    ships: Ship[];
+    ships: ShipPosition[];
     indexPlayer: number;
   };
 };

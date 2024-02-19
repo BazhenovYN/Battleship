@@ -1,7 +1,7 @@
 import { Game } from '../game';
 import { Room } from '../room';
 import { User } from '../user';
-import { ServerMessageType } from './common';
+import { AttackStatus, ServerMessageType } from './common';
 
 type dbBase<T> = {
   type: T;
@@ -37,4 +37,22 @@ type dbTurn = dbBase<ServerMessageType.TURN> & {
   payload: User;
 };
 
-export type dbData = dbReg | dbUpdateWinners | dbCreateGame | dbUpdateRoom | dbStartGame | dbTurn;
+type dbAttack = dbBase<ServerMessageType.ATTACK> & {
+  payload: {
+    position: {
+      x: number;
+      y: number;
+    };
+    user: User;
+    status: AttackStatus;
+  };
+};
+
+export type dbData =
+  | dbReg
+  | dbUpdateWinners
+  | dbCreateGame
+  | dbUpdateRoom
+  | dbStartGame
+  | dbTurn
+  | dbAttack;

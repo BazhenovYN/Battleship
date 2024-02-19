@@ -1,4 +1,4 @@
-import { ServerMessageType, Ship } from './common';
+import { AttackStatus, ServerMessageType, ShipPosition } from './common';
 
 type ServerMessageBase<T> = {
   type: T;
@@ -39,7 +39,7 @@ type ServerMessageUpdateRoom = ServerMessageBase<ServerMessageType.UPDATE_ROOM> 
 
 type ServerMessageStartGame = ServerMessageBase<ServerMessageType.START_GAME> & {
   data: {
-    ships: Ship[];
+    ships: ShipPosition[];
     currentPlayerIndex: number;
   };
 };
@@ -50,10 +50,22 @@ type ServerMessageTurn = ServerMessageBase<ServerMessageType.TURN> & {
   };
 };
 
+type ServerMessageAttack = ServerMessageBase<ServerMessageType.ATTACK> & {
+  data: {
+    position: {
+      x: number;
+      y: number;
+    };
+    currentPlayer: number;
+    status: AttackStatus;
+  };
+};
+
 export type ServerMessage =
   | ServerMessageReg
   | ServerMessageUpdateWinners
   | ServerMessageCreateGame
   | ServerMessageUpdateRoom
   | ServerMessageStartGame
-  | ServerMessageTurn;
+  | ServerMessageTurn
+  | ServerMessageAttack;

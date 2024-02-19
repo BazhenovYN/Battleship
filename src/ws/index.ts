@@ -33,8 +33,8 @@ export const startWsServer = (port: number) => {
         }
         case ClientMessageType.ADD_USER_TO_ROOM: {
           const room = db.addUserToRoom(currentUser, data.indexRoom);
-          if (room && db.isPlayersReady(room)) {
-            const game = db.createNewGame(currentUser, room);
+          if (db.isPlayersReady(room)) {
+            const game = db.createNewGame(room);
             const players = game.getPlayers();
             players.forEach((player) => {
               send(player.user.connection, {
@@ -48,10 +48,8 @@ export const startWsServer = (port: number) => {
         }
         case ClientMessageType.ADD_SHIPS: {
           const game = db.getGameById(data.gameId);
-          if (!game) {
-            return;
-          }
           game.addShips(currentUser, data.ships);
+
           if (game.isPlayersReady()) {
             const players = game.getPlayers();
             players.forEach((player) => {
@@ -59,13 +57,39 @@ export const startWsServer = (port: number) => {
                 type: ServerMessageType.START_GAME,
                 payload: { game: game, user: player.user },
               });
-              send(player.user.connection, { type: ServerMessageType.TURN, payload: game.turn });
+              send(player.user.connection, {
+                type: ServerMessageType.TURN,
+                payload: game.getTurn(),
+              });
             });
           }
           break;
         }
-        case ClientMessageType.ATTACK:
+        case ClientMessageType.ATTACK: {
+          const game = db.getGameById(data.gameId);
+
+          if (!game.isUserAttack(currentUser)) {
+            return;
+          }
+          const { x, y } = data;
+          const status = game.attack(currentUser, x, y);
+          const players = game.getPlayers();
+          players.forEach((player) => {
+            send(player.user.connection, {
+              type: ServerMessageType.ATTACK,
+              payload: {
+                position: { x, y },
+                user: currentUser,
+                status,
+              },
+            });
+            send(player.user.connection, {
+              type: ServerMessageType.TURN,
+              payload: game.getTurn(),
+            });
+          });
           break;
+        }
         case ClientMessageType.RANDOM_ATTACK:
           break;
         case ClientMessageType.SINGLE_PLAY:

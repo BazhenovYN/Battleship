@@ -1,67 +1,139 @@
+import { ERRORS } from '../const';
+import { Ship } from './ship';
+import { AttackStatus, ShipDirection, ShipPosition } from './types';
 import { User } from './user';
 
-// type AttackStatus = 'miss' | 'killed' | 'shot';
-
-type ShipType = 'small' | 'medium' | 'large' | 'huge';
-
-interface Ship {
-  position: {
-    x: number;
-    y: number;
-  };
-  direction: boolean;
-  length: number;
-  type: ShipType;
-}
+const FIELD_SIZE = 10;
 
 interface Player {
   user: User;
+  shipsPosition: ShipPosition[];
   ships: Ship[];
-  // shots: Shot[];
+  field: (Ship | null)[][];
 }
 
 export class Game {
   public readonly index: number;
   private players: Player[] = [];
-  public turn: User;
+  public turn: Player;
 
   constructor(players: User[], index: number) {
     const [user1, user2] = players;
-    this.players.push({ user: user1, ships: [] });
-    this.players.push({ user: user2, ships: [] });
+    const player1: Player = {
+      user: user1,
+      shipsPosition: [],
+      ships: [],
+      field: this.createEmptyField(),
+    };
+    const player2: Player = {
+      user: user2,
+      shipsPosition: [],
+      ships: [],
+      field: this.createEmptyField(),
+    };
 
+    this.players.push(player1);
+    this.players.push(player2);
     this.index = index;
-
-    this.turn = this.getRandomUser(user1, user2);
+    this.turn = this.getRandomUser(player1, player2);
   }
 
-  private getRandomUser(user1: User, user2: User): User {
-    return Math.random() < 0.5 ? user1 : user2;
+  private createEmptyField() {
+    const grid = [];
+    for (let i = 0; i < FIELD_SIZE; i++) {
+      const row = [];
+      for (let j = 0; j < FIELD_SIZE; j++) {
+        row.push(null);
+      }
+      grid.push(row);
+    }
+    return grid;
+  }
+
+  private getRandomUser(player1: Player, player2: Player): Player {
+    return Math.random() < 0.5 ? player1 : player2;
   }
 
   public isPlayersReady(): boolean {
     return this.players.every((player) => player.ships.length > 0);
   }
 
-  public changePlayersTurn(): User {
-    const index = this.players.findIndex((player) => player.user === this.turn);
-    const newIndex = index < this.players.length - 1 ? index + 1 : 0;
-    this.turn = this.players[newIndex].user;
-    return this.turn;
+  public changePlayersTurn() {
+    this.turn = this.getAnotherPlayer(this.turn);
+  }
+
+  public getTurn() {
+    return this.turn.user;
   }
 
   public getPlayer(user: User) {
-    return this.players.find((curr) => curr.user === user);
+    const player = this.players.find((curr) => curr.user === user);
+    if (!player) {
+      throw Error(ERRORS.GAME_DATA_NOT_FOUND);
+    }
+    return player;
   }
 
-  public addShips(user: User, ships: Ship[]): void {
+  private getAnotherPlayer(player: Player) {
+    const index = this.players.findIndex((curr) => curr === player);
+    const newIndex = index < this.players.length - 1 ? index + 1 : 0;
+    return this.players[newIndex];
+  }
+
+  private getVictim(attacker: Player) {
+    return this.getAnotherPlayer(attacker);
+  }
+
+  private placePlayersShipsOnTheField(player: Player) {
+    player.ships.forEach((ship) => {
+      const { x, y } = ship.position;
+      for (let i = 0; i < ship.length; i++) {
+        if (ship.direction === ShipDirection.HORIZONTALLY) {
+          player.field[y][x + i] = ship;
+        } else {
+          player.field[y + i][x] = ship;
+        }
+      }
+    });
+  }
+
+  public addShips(user: User, shipsPosition: ShipPosition[]): void {
     const player = this.getPlayer(user);
-    if (player) {
-      player.ships = ships;
+    if (!player) {
+      throw Error(ERRORS.GAME_DATA_NOT_FOUND);
     }
+    player.shipsPosition = shipsPosition;
+    player.ships = shipsPosition.map((position) => new Ship(position));
+
+    this.placePlayersShipsOnTheField(player);
   }
 
   public getPlayers() {
     return this.players;
+  }
+
+  public isUserAttack(user: User) {
+    return this.turn.user === user;
+  }
+
+  public attack(user: User, x: number, y: number) {
+    const attacker = this.getPlayer(user);
+    if (!attacker) {
+      throw Error(ERRORS.GAME_DATA_NOT_FOUND);
+    }
+
+    const victim = this.getVictim(attacker);
+    if (!victim) {
+      throw Error(ERRORS.GAME_DATA_NOT_FOUND);
+    }
+
+    const ship = victim.field[y][x];
+
+    if (!ship) {
+      this.changePlayersTurn();
+      return AttackStatus.MISS;
+    }
+
+    return ship.shot();
   }
 }

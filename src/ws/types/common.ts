@@ -20,9 +20,30 @@ export const enum ServerMessageType {
   UPDATE_WINNERS = 'update_winners',
 }
 
-type ShipType = 'small' | 'medium' | 'large' | 'huge';
+export const enum AttackStatus {
+  MISS = 'miss',
+  KILLED = 'killed',
+  SHOT = 'shot',
+}
 
-export interface Ship {
+export const enum ShipType {
+  SMALL = 'small',
+  MEDIUM = 'medium',
+  LARGE = 'large',
+  HUGE = 'huge',
+}
+
+export const enum ShipDirection {
+  HORIZONTALLY = 'horizontally',
+  VERTICALLY = 'vertically',
+}
+
+export const enum RoomStatus {
+  OPEN = 'open',
+  CLOSE = 'close',
+}
+
+export interface ShipPosition {
   position: {
     x: number;
     y: number;

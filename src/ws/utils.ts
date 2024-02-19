@@ -29,11 +29,17 @@ const adapt = (data: dbData): ServerMessage['data'] | null => {
       return payload.map((user) => ({ name: user.name, wins: user.wins }));
     case ServerMessageType.START_GAME: {
       const player = payload.game.getPlayer(payload.user);
-      return { ships: player ? player.ships : [], currentPlayerIndex: payload.user.index };
+      return { ships: player.shipsPosition, currentPlayerIndex: payload.user.index };
     }
     case ServerMessageType.TURN:
       return {
         currentPlayer: payload.index,
+      };
+    case ServerMessageType.ATTACK:
+      return {
+        position: payload.position,
+        currentPlayer: payload.user.index,
+        status: payload.status,
       };
     default:
       return null;
