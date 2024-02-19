@@ -72,20 +72,23 @@ export const startWsServer = (port: number) => {
             return;
           }
           const { x, y } = data;
-          const status = game.attack(currentUser, x, y);
+          const results = game.attack(currentUser, x, y);
           const players = game.getPlayers();
+          const turn = game.getTurn();
           players.forEach((player) => {
-            send(player.user.connection, {
-              type: ServerMessageType.ATTACK,
-              payload: {
-                position: { x, y },
-                user: currentUser,
-                status,
-              },
-            });
-            send(player.user.connection, {
-              type: ServerMessageType.TURN,
-              payload: game.getTurn(),
+            results.forEach((cell) => {
+              send(player.user.connection, {
+                type: ServerMessageType.ATTACK,
+                payload: {
+                  position: { x: cell.x, y: cell.y },
+                  user: currentUser,
+                  status: cell.status,
+                },
+              });
+              send(player.user.connection, {
+                type: ServerMessageType.TURN,
+                payload: turn,
+              });
             });
           });
           break;

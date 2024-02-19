@@ -52,3 +52,9 @@ export interface ShipPosition {
   length: number;
   type: ShipType;
 }
+
+export interface AttackResult {
+  x: number;
+  y: number;
+  status: AttackStatus;
+}

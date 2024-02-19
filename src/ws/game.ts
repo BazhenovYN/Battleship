@@ -1,6 +1,6 @@
 import { ERRORS } from '../const';
 import { Ship } from './ship';
-import { AttackStatus, ShipDirection, ShipPosition } from './types';
+import { AttackResult, AttackStatus, ShipDirection, ShipPosition } from './types';
 import { User } from './user';
 
 const FIELD_SIZE = 10;
@@ -9,8 +9,10 @@ interface Player {
   user: User;
   shipsPosition: ShipPosition[];
   ships: Ship[];
-  field: (Ship | null)[][];
+  field: Field;
 }
+
+export type Field = (Ship | null)[][];
 
 export class Game {
   public readonly index: number;
@@ -116,7 +118,30 @@ export class Game {
     return this.turn.user === user;
   }
 
-  public attack(user: User, x: number, y: number) {
+  private getKillZone(field: Field, ship: Ship): AttackResult[] {
+    const killZone: AttackResult[] = [];
+
+    const width = ship.direction === ShipDirection.HORIZONTALLY ? ship.length : 1;
+    const height = ship.direction === ShipDirection.VERTICALLY ? ship.length : 1;
+
+    const { x, y } = ship.position;
+
+    for (let i = -1; i <= width; i++) {
+      for (let j = -1; j <= height; j++) {
+        if (x + i < 0 || x + i >= FIELD_SIZE || y + j < 0 || y + j >= FIELD_SIZE) {
+          continue;
+        }
+        if (field[y + j][x + i] === null) {
+          killZone.push({ x: x + i, y: y + j, status: AttackStatus.MISS });
+          continue;
+        }
+        killZone.push({ x: x + i, y: y + j, status: AttackStatus.KILLED });
+      }
+    }
+    return killZone;
+  }
+
+  public attack(user: User, x: number, y: number): AttackResult[] {
     const attacker = this.getPlayer(user);
     if (!attacker) {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
@@ -131,9 +156,15 @@ export class Game {
 
     if (!ship) {
       this.changePlayersTurn();
-      return AttackStatus.MISS;
+      return [{ x, y, status: AttackStatus.MISS }];
     }
 
-    return ship.shot();
+    const status = ship.shot();
+
+    if (status === AttackStatus.SHOT) {
+      return [{ x, y, status }];
+    }
+
+    return this.getKillZone(victim.field, ship);
   }
 }
