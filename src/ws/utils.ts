@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import { WebSocket } from 'ws';
 
 import { ClientMessage, dbData, ServerMessage, ServerMessageType } from './types';
 
@@ -54,7 +54,9 @@ export const send = (ws: WebSocket | Set<WebSocket>, data: dbData) => {
     if (client.readyState === WebSocket.OPEN) {
       const adaptedData = adapt(data);
       if (adaptedData) {
-        client.send(generateServerMessage(type, adaptedData));
+        const message = generateServerMessage(type, adaptedData);
+        console.log('Server message:', message);
+        client.send(message);
       }
     }
   });

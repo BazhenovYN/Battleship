@@ -1,3 +1,5 @@
+import { WebSocket } from 'ws';
+
 import { Game } from './game';
 import { Room } from './room';
 import { User } from './user';
@@ -10,8 +12,8 @@ export class DataBase {
   private maxRoomNumber: number = 0;
   private maxGameNumber: number = 0;
 
-  public createNewUser(name: string, password: string) {
-    const newUser = new User(name, password, this.users.length);
+  public createNewUser(name: string, password: string, connection: WebSocket) {
+    const newUser = new User(name, password, this.users.length, connection);
     this.users.push(newUser);
     return newUser;
   }
@@ -52,7 +54,12 @@ export class DataBase {
 
   public createNewGame(user: User, room: Room) {
     const newGame = new Game(room.players, this.maxGameNumber++);
+    this.games.push(newGame);
     this.deleteRoom(room);
     return newGame;
+  }
+
+  public getGameById(id: number) {
+    return this.games.find((game) => game.index === id);
   }
 }

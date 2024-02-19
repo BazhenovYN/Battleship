@@ -60,4 +60,8 @@ export class Game {
       player.ships = ships;
     }
   }
+
+  public getPlayers() {
+    return this.players;
+  }
 }
