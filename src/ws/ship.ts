@@ -16,7 +16,7 @@ export class Ship {
     this.length = params.length;
   }
 
-  public shot() {
+  public shot(): AttackStatus {
     this.hitCount += 1;
     if (this.hitCount >= this.length) {
       this.isDestroyed = true;

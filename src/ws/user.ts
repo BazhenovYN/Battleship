@@ -19,8 +19,7 @@ export class User {
     this.connection = connection;
   }
 
-  public win() {
+  public win(): void {
     this.wins += 1;
-    return this.wins;
   }
 }

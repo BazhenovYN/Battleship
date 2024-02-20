@@ -14,11 +14,11 @@ export class Room {
     this.status = RoomStatus.OPEN;
   }
 
-  public addPlayer(user: User) {
+  public addPlayer(user: User): void {
     this.players.push(user);
   }
 
-  public createNewGame(id: number) {
+  public createNewGame(id: number): Game {
     this.game = new Game(this.players, id);
     this.status = RoomStatus.CLOSE;
     return this.game;

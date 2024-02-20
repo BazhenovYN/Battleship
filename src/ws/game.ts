@@ -42,7 +42,7 @@ export class Game {
     this.turn = this.getRandomUser(player1, player2);
   }
 
-  private createEmptyField() {
+  private createEmptyField(): Field {
     const grid = [];
     for (let i = 0; i < FIELD_SIZE; i++) {
       const row = [];
@@ -62,15 +62,15 @@ export class Game {
     return this.players.every((player) => player.ships.length > 0);
   }
 
-  public changePlayersTurn() {
+  public changePlayersTurn(): void {
     this.turn = this.getAnotherPlayer(this.turn);
   }
 
-  public getTurn() {
+  public getTurn(): User {
     return this.turn.user;
   }
 
-  public getPlayer(user: User) {
+  public getPlayer(user: User): Player {
     const player = this.players.find((curr) => curr.user === user);
     if (!player) {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
@@ -78,17 +78,17 @@ export class Game {
     return player;
   }
 
-  private getAnotherPlayer(player: Player) {
+  private getAnotherPlayer(player: Player): Player {
     const index = this.players.findIndex((curr) => curr === player);
     const newIndex = index < this.players.length - 1 ? index + 1 : 0;
     return this.players[newIndex];
   }
 
-  private getVictim(attacker: Player) {
+  private getVictim(attacker: Player): Player {
     return this.getAnotherPlayer(attacker);
   }
 
-  private placePlayersShipsOnTheField(player: Player) {
+  private placePlayersShipsOnTheField(player: Player): void {
     player.ships.forEach((ship) => {
       const { x, y } = ship.position;
       for (let i = 0; i < ship.length; i++) {
@@ -112,11 +112,11 @@ export class Game {
     this.placePlayersShipsOnTheField(player);
   }
 
-  public getPlayers() {
+  public getPlayers(): Player[] {
     return this.players;
   }
 
-  public isUserAttack(user: User) {
+  public isUserAttack(user: User): boolean {
     return this.turn.user === user;
   }
 
@@ -143,7 +143,7 @@ export class Game {
     return killZone;
   }
 
-  public CheckGameOver(attacker: Player, victim: Player) {
+  public CheckGameOver(attacker: Player, victim: Player): void {
     const isGameOver = victim.ships.every((ship) => ship.isDestroyed);
     if (isGameOver) {
       this.gameOver = true;
