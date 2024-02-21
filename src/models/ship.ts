@@ -1,4 +1,4 @@
-import { AttackStatus, ShipDirection, ShipPosition } from './types';
+import { AttackStatus, ShipDirection, ShipPosition } from '../types';
 
 export class Ship {
   public readonly position: {

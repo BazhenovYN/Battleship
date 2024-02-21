@@ -1,9 +1,5 @@
-import { createHash } from 'node:crypto';
-import type { WebSocket } from 'ws';
-
-const hash = (data: string): string => {
-  return createHash('sha256').update(data).digest('hex');
-};
+import { WebSocket } from 'ws';
+import { hash } from '../utils';
 
 export class User {
   public readonly index: number;
@@ -12,10 +8,10 @@ export class User {
   public connection: WebSocket;
   private readonly password: string;
 
-  constructor(name: string, password: string, index: number, connection: WebSocket) {
+  constructor(name: string, password: string, connection: WebSocket, id: number) {
     this.name = name;
     this.password = hash(password);
-    this.index = index;
+    this.index = id;
     this.connection = connection;
   }
 

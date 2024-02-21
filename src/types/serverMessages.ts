@@ -1,11 +1,23 @@
-import { AttackStatus, ServerMessageType, ShipPosition } from './common';
+import { AttackStatus, ShipPosition } from '../types';
+
+export const enum ServerMessageType {
+  REG = 'reg',
+  UPDATE_ROOM = 'update_room',
+  ADD_USER_TO_ROOM = 'add_user_to_room',
+  CREATE_GAME = 'create_game',
+  START_GAME = 'start_game',
+  ATTACK = 'attack',
+  TURN = 'turn',
+  FINISH = 'finish',
+  UPDATE_WINNERS = 'update_winners',
+}
 
 type ServerMessageBase<T> = {
   type: T;
 };
 
 type ServerMessageReg = ServerMessageBase<ServerMessageType.REG> & {
-  data: {
+  payload: {
     name: string;
     index: number;
     error: boolean;
@@ -14,21 +26,21 @@ type ServerMessageReg = ServerMessageBase<ServerMessageType.REG> & {
 };
 
 type ServerMessageUpdateWinners = ServerMessageBase<ServerMessageType.UPDATE_WINNERS> & {
-  data: {
+  payload: {
     name: string;
     wins: number;
   }[];
 };
 
 type ServerMessageCreateGame = ServerMessageBase<ServerMessageType.CREATE_GAME> & {
-  data: {
+  payload: {
     idGame: number;
     idPlayer: number;
   };
 };
 
 type ServerMessageUpdateRoom = ServerMessageBase<ServerMessageType.UPDATE_ROOM> & {
-  data: {
+  payload: {
     roomId: number;
     roomUsers: {
       name: string;
@@ -38,20 +50,20 @@ type ServerMessageUpdateRoom = ServerMessageBase<ServerMessageType.UPDATE_ROOM> 
 };
 
 type ServerMessageStartGame = ServerMessageBase<ServerMessageType.START_GAME> & {
-  data: {
+  payload: {
     ships: ShipPosition[];
     currentPlayerIndex: number;
   };
 };
 
 type ServerMessageTurn = ServerMessageBase<ServerMessageType.TURN> & {
-  data: {
+  payload: {
     currentPlayer: number;
   };
 };
 
 type ServerMessageAttack = ServerMessageBase<ServerMessageType.ATTACK> & {
-  data: {
+  payload: {
     position: {
       x: number;
       y: number;
@@ -62,7 +74,7 @@ type ServerMessageAttack = ServerMessageBase<ServerMessageType.ATTACK> & {
 };
 
 type ServerMessageFinish = ServerMessageBase<ServerMessageType.FINISH> & {
-  data: {
+  payload: {
     winPlayer: number;
   };
 };

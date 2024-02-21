@@ -1,15 +1,32 @@
 import { WebSocket } from 'ws';
+import { ServerMessage, ServerMessageType, InnerData } from '../../types';
 
-import { ClientMessage, dbData, ServerMessage, ServerMessageType } from './types';
+export const send = (ws: WebSocket | Set<WebSocket>, innerData: InnerData) => {
+  const { type } = innerData;
+  const clients = ws instanceof WebSocket ? [ws] : [...ws];
 
-export const decodeClientMessage = (rawMessage: string): ClientMessage => {
-  const { type, data: rawData } = JSON.parse(rawMessage);
-  const data = rawData === '' ? '' : JSON.parse(rawData);
-  return { type, data } as ClientMessage;
+  clients.map((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      const data = adapt(innerData);
+      if (data) {
+        const message = generateServerMessage(type, data);
+        console.log('Server message:', message);
+        client.send(message);
+      }
+    }
+  });
 };
 
-const adapt = (data: dbData): ServerMessage['data'] | null => {
+const generateServerMessage = (type: ServerMessageType, data: ServerMessage['payload']) =>
+  JSON.stringify({
+    type,
+    data: JSON.stringify(data),
+    id: 0,
+  });
+
+const adapt = (data: InnerData): ServerMessage['payload'] | null => {
   const { type, payload } = data;
+
   switch (type) {
     case ServerMessageType.REG:
       return {
@@ -48,26 +65,4 @@ const adapt = (data: dbData): ServerMessage['data'] | null => {
     default:
       return null;
   }
-};
-
-const generateServerMessage = (type: ServerMessageType, data: ServerMessage['data']) =>
-  JSON.stringify({
-    type,
-    data: JSON.stringify(data),
-    id: 0,
-  });
-
-export const send = (ws: WebSocket | Set<WebSocket>, data: dbData) => {
-  const { type } = data;
-  const clients = ws instanceof WebSocket ? [ws] : [...ws];
-  clients.map((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      const adaptedData = adapt(data);
-      if (adaptedData) {
-        const message = generateServerMessage(type, adaptedData);
-        console.log('Server message:', message);
-        client.send(message);
-      }
-    }
-  });
 };

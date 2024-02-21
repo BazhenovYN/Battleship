@@ -1,19 +1,15 @@
-import { ERRORS } from '../const';
-import { Ship } from './ship';
-import { AttackResult, AttackStatus, ShipDirection, ShipPosition } from './types';
-import { User } from './user';
-
-const FIELD_SIZE = 10;
-const SHIP_WIDTH = 1;
-
-interface Player {
-  user: User;
-  shipsPosition: ShipPosition[];
-  ships: Ship[];
-  field: Field;
-}
-
-export type Field = (Ship | null)[][];
+import { ERRORS, FIELD_SIZE, SHIP_WIDTH } from '../const';
+import {
+  AttackResult,
+  AttackStatus,
+  Field,
+  Player,
+  Ship,
+  ShipDirection,
+  ShipPosition,
+  User,
+} from '../types';
+import { uuid } from '../utils';
 
 export class Game {
   public readonly index: number;
@@ -21,7 +17,7 @@ export class Game {
   public turn: Player;
   public gameOver: boolean = false;
 
-  constructor(players: User[], index: number) {
+  constructor(players: User[]) {
     const [user1, user2] = players;
     const player1: Player = {
       user: user1,
@@ -38,7 +34,7 @@ export class Game {
 
     this.players.push(player1);
     this.players.push(player2);
-    this.index = index;
+    this.index = uuid();
     this.turn = this.getRandomUser(player1, player2);
   }
 
@@ -58,7 +54,7 @@ export class Game {
     return Math.random() < 0.5 ? player1 : player2;
   }
 
-  public isPlayersReady(): boolean {
+  public isPlayersReadyToStart(): boolean {
     return this.players.every((player) => player.ships.length > 0);
   }
 
