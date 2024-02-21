@@ -1,6 +1,6 @@
 import { RawData, Server, WebSocket } from 'ws';
 
-import { ERRORS } from '../const';
+import { ERRORS, MESSAGES } from '../const';
 import { userService } from '../services';
 import { ClientMessage, ClientMessageType } from '../types';
 import {
@@ -8,6 +8,7 @@ import {
   addUserToRoom,
   attack,
   createNewRoom,
+  deleteUserRooms,
   randomAttack,
   registerUser,
 } from './helpers';
@@ -18,7 +19,12 @@ const decodeClientMessage = (rawMessage: string): ClientMessage => {
   return { type, data } as ClientMessage;
 };
 
-export const handleRequest = (wss: Server, ws: WebSocket, userId: number, rawMessage: RawData) => {
+export const handleClientMessage = (
+  wss: Server,
+  ws: WebSocket,
+  userId: number,
+  rawMessage: RawData
+) => {
   console.log(`Client message: ${String(rawMessage)}`);
 
   const currentUser = userService.getUserById(userId);
@@ -50,4 +56,15 @@ export const handleRequest = (wss: Server, ws: WebSocket, userId: number, rawMes
       ws.send(ERRORS.UNKNOWN_MESSAGE_TYPE);
       break;
   }
+};
+
+export const handleDisconnect = (wss: Server, userId: number) => {
+  console.log(MESSAGES.CLIENT_DISCONNECTED);
+
+  const user = userService.getUserById(userId);
+  if (!user) {
+    return;
+  }
+
+  deleteUserRooms(wss, user);
 };

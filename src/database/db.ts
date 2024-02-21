@@ -20,6 +20,10 @@ class DB {
     this.rooms.push(room);
   }
 
+  public deleteUserRooms(user: User): void {
+    this.rooms = this.rooms.filter((room) => room.users.indexOf(user) < 0);
+  }
+
   public getRoomById(id: number): Room | undefined {
     return this.rooms.find((room) => room.index === id);
   }

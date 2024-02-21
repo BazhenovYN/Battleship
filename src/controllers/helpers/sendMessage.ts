@@ -38,7 +38,7 @@ const adapt = (data: InnerData): ServerMessage['payload'] | null => {
     case ServerMessageType.UPDATE_ROOM:
       return payload.map((room) => ({
         roomId: room.index,
-        roomUsers: room.players.map((player) => ({ name: player.name, index: player.index })),
+        roomUsers: room.users.map((player) => ({ name: player.name, index: player.index })),
       }));
     case ServerMessageType.CREATE_GAME:
       return { idGame: payload.game.index, idPlayer: payload.player.index };

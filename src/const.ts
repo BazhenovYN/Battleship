@@ -16,6 +16,6 @@ export const ERRORS = {
 export const MESSAGES = {
   START_HTTP_SERVER: 'Start static http server on the %s port',
   START_WEBSOCKET_SERVER: 'Start WebSocket server on the %s port',
-  CONNECTED: 'New client connected',
-  DISCONNECTED: 'Client disconnected',
+  CLIENT_CONNECTED: 'New client connected',
+  CLIENT_DISCONNECTED: 'Client disconnected',
 };

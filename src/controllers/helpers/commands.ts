@@ -121,3 +121,8 @@ export const randomAttack = (wss: Server, user: User | null, gameId: number) => 
   const { x, y } = getRandomCoordinates(FIELD_SIZE);
   attack(wss, user, gameId, x, y);
 };
+
+export const deleteUserRooms = (wss: Server, user: User) => {
+  roomService.deleteUserRooms(user);
+  send(wss.clients, { type: ServerMessageType.UPDATE_ROOM, payload: roomService.getOpenedRooms() });
+};

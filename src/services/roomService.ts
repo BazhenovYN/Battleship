@@ -19,3 +19,5 @@ export const addUserToRoom = (user: User, roomId: number): Room => {
   room.addPlayer(user);
   return room;
 };
+
+export const deleteUserRooms = (user: User): void => db.deleteUserRooms(user);
