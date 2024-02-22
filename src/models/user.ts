@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import { hash } from '../utils';
 
 export class User {
-  public readonly index: number;
+  public index: number;
   public readonly name: string;
   public wins: number = 0;
   public connection: WebSocket;
@@ -17,5 +17,14 @@ export class User {
 
   public win(): void {
     this.wins += 1;
+  }
+
+  public isPasswordValid(password: string): boolean {
+    return this.password === hash(password);
+  }
+
+  public updateConnection(connection: WebSocket, id: number) {
+    this.index = id;
+    this.connection = connection;
   }
 }

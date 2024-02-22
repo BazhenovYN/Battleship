@@ -6,7 +6,11 @@ type InnerDataBase<T> = {
 };
 
 type InnerDataReg = InnerDataBase<ServerMessageType.REG> & {
-  payload: User;
+  payload: {
+    user: User | null;
+    error: boolean;
+    errorText: string;
+  };
 };
 
 type InnerDataUpdateWinners = InnerDataBase<ServerMessageType.UPDATE_WINNERS> & {

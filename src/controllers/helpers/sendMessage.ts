@@ -30,10 +30,10 @@ const adapt = (data: InnerData): ServerMessage['payload'] | null => {
   switch (type) {
     case ServerMessageType.REG:
       return {
-        name: payload.name,
-        index: payload.index,
-        error: false,
-        errorText: '',
+        name: payload.user?.name ?? '',
+        index: payload.user?.index ?? 0,
+        error: payload.error,
+        errorText: payload.errorText,
       };
     case ServerMessageType.UPDATE_ROOM:
       return payload.map((room) => ({

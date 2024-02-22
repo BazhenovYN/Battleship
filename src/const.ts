@@ -11,6 +11,7 @@ export const ERRORS = {
   UNKNOWN_MESSAGE_TYPE: 'Unknown message type',
   GAME_DATA_NOT_FOUND: 'Game data not found',
   USER_NOT_FOUND: 'User not found',
+  INVALID_PASSWORD: 'Invalid password',
 };
 
 export const MESSAGES = {

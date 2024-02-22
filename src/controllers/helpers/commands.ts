@@ -13,11 +13,25 @@ export const registerUser = (
   password: string,
   userId: number
 ) => {
-  const user = userService.createNewUser(name, password, ws, userId);
+  const { user, isNewUser, error, errorText } = userService.signIn(name, password, ws, userId);
 
-  send(ws, { type: ServerMessageType.REG, payload: user });
-  send(wss.clients, { type: ServerMessageType.UPDATE_ROOM, payload: roomService.getOpenedRooms() });
-  send(wss.clients, { type: ServerMessageType.UPDATE_WINNERS, payload: userService.getWinners() });
+  if (user && !isNewUser) {
+    user.connection.close();
+    user.updateConnection(ws, userId);
+  }
+
+  send(ws, { type: ServerMessageType.REG, payload: { user, error, errorText } });
+
+  if (!error) {
+    send(wss.clients, {
+      type: ServerMessageType.UPDATE_ROOM,
+      payload: roomService.getOpenedRooms(),
+    });
+    send(wss.clients, {
+      type: ServerMessageType.UPDATE_WINNERS,
+      payload: userService.getWinners(),
+    });
+  }
 };
 
 export const createNewRoom = (wss: Server, user: User | null) => {

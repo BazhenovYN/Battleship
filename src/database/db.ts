@@ -12,6 +12,10 @@ class DB {
     return this.users.find((user) => user.index === id);
   }
 
+  public getUserByName(name: string): User | undefined {
+    return this.users.find((user) => user.name === name);
+  }
+
   public getAllUsers(): User[] {
     return this.users;
   }
