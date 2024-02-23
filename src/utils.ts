@@ -21,7 +21,7 @@ export const getRandomCoordinates = (max: number, exceptions: Coordinates[]): Co
   return generateRandomCoordinates();
 };
 
-const getRandomInt = (min: number, max: number): number =>
+export const getRandomInt = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min) + min);
 
 export const randomBoolean = () => Math.random() < 0.5;
