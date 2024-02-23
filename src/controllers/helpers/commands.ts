@@ -2,7 +2,7 @@ import { Server, WebSocket } from 'ws';
 
 import { ERRORS, FIELD_SIZE } from '../../const';
 import { gameService, roomService, userService } from '../../services';
-import { ServerMessageType, ShipPosition, User } from '../../types';
+import { AttackResult, Game, ServerMessageType, ShipPosition, User } from '../../types';
 import { getRandomCoordinates } from '../../utils';
 import { send } from './sendMessage';
 
@@ -16,7 +16,7 @@ export const registerUser = (
   const { user, isNewUser, error, errorText } = userService.signIn(name, password, ws, userId);
 
   if (user && !isNewUser) {
-    user.connection.close();
+    user.connection?.close();
     user.updateConnection(ws, userId);
   }
 
@@ -53,7 +53,7 @@ export const addUserToRoom = (wss: Server, user: User | null, roomId: number) =>
     players.forEach((player) => {
       send(player.user.connection, {
         type: ServerMessageType.CREATE_GAME,
-        payload: { game: game, player: player.user },
+        payload: { game: game, user: player.user },
       });
     });
   }
@@ -114,17 +114,10 @@ export const attack = (wss: Server, user: User | null, gameId: number, x: number
     });
   });
 
-  if (game.gameOver) {
-    players.forEach((player) => {
-      send(player.user.connection, {
-        type: ServerMessageType.FINISH,
-        payload: user,
-      });
-    });
-    send(wss.clients, {
-      type: ServerMessageType.UPDATE_WINNERS,
-      payload: userService.getWinners(),
-    });
+  checkGameOver(wss, user, game);
+
+  if (game.isSingleGame && turn !== user) {
+    botAttack(wss, user, game);
   }
 };
 
@@ -139,4 +132,64 @@ export const randomAttack = (wss: Server, user: User | null, gameId: number) => 
 export const deleteUserRooms = (wss: Server, user: User) => {
   roomService.deleteUserRooms(user);
   send(wss.clients, { type: ServerMessageType.UPDATE_ROOM, payload: roomService.getOpenedRooms() });
+};
+
+export const startSinglePlay = (ws: WebSocket, user: User | null) => {
+  if (!user) {
+    throw new Error(ERRORS.USER_NOT_FOUND);
+  }
+
+  const room = roomService.createNewPrivateRoom(user);
+  const game = gameService.createNewSingleGame(room);
+
+  send(user.connection, {
+    type: ServerMessageType.CREATE_GAME,
+    payload: { game, user },
+  });
+};
+
+const checkGameOver = (wss: Server, user: User, game: Game) => {
+  if (!game.gameOver) {
+    return;
+  }
+
+  const players = game.getPlayers();
+
+  players.forEach((player) => {
+    send(player.user.connection, {
+      type: ServerMessageType.FINISH,
+      payload: user,
+    });
+  });
+  send(wss.clients, {
+    type: ServerMessageType.UPDATE_WINNERS,
+    payload: userService.getWinners(),
+  });
+};
+
+const botAttack = (wss: Server, user: User, game: Game) => {
+  const bot = game.getBot();
+  const results: AttackResult[] = [];
+
+  while (game.getTurn() !== user) {
+    const { x, y } = getRandomCoordinates(FIELD_SIZE);
+    results.push(...game.attack(bot, x, y));
+  }
+
+  results.forEach((cell) => {
+    send(user.connection, {
+      type: ServerMessageType.ATTACK,
+      payload: {
+        position: { x: cell.x, y: cell.y },
+        user: bot,
+        status: cell.status,
+      },
+    });
+    send(user.connection, {
+      type: ServerMessageType.TURN,
+      payload: user,
+    });
+  });
+
+  checkGameOver(wss, user, game);
 };

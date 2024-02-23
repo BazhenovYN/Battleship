@@ -11,6 +11,7 @@ import {
   deleteUserRooms,
   randomAttack,
   registerUser,
+  startSinglePlay,
 } from './helpers';
 
 const decodeClientMessage = (rawMessage: string): ClientMessage => {
@@ -50,6 +51,7 @@ export const handleClientMessage = (
       randomAttack(wss, currentUser, data.gameId);
       break;
     case ClientMessageType.SINGLE_PLAY:
+      startSinglePlay(ws, currentUser);
       break;
 
     default:

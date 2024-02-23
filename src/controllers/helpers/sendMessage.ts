@@ -1,7 +1,10 @@
 import { WebSocket } from 'ws';
 import { ServerMessage, ServerMessageType, InnerData } from '../../types';
 
-export const send = (ws: WebSocket | Set<WebSocket>, innerData: InnerData) => {
+export const send = (ws: WebSocket | Set<WebSocket> | undefined, innerData: InnerData) => {
+  if (!ws) {
+    return;
+  }
   const { type } = innerData;
   const clients = ws instanceof WebSocket ? [ws] : [...ws];
 
@@ -41,7 +44,7 @@ const adapt = (data: InnerData): ServerMessage['payload'] | null => {
         roomUsers: room.users.map((player) => ({ name: player.name, index: player.index })),
       }));
     case ServerMessageType.CREATE_GAME:
-      return { idGame: payload.game.index, idPlayer: payload.player.index };
+      return { idGame: payload.game.index, idPlayer: payload.user.index };
     case ServerMessageType.UPDATE_WINNERS:
       return payload.map((user) => ({ name: user.name, wins: user.wins }));
     case ServerMessageType.START_GAME: {

@@ -8,16 +8,18 @@ import {
   ShipDirection,
   ShipPosition,
   User,
+  UserType,
 } from '../types';
-import { uuid } from '../utils';
+import { getRandomValue, uuid } from '../utils';
 
 export class Game {
   public readonly index: number;
   private players: Player[] = [];
+  public isSingleGame: boolean;
   public turn: Player;
   public gameOver: boolean = false;
 
-  constructor(players: User[]) {
+  constructor(players: User[], isSingleGame: boolean) {
     const [user1, user2] = players;
     const player1: Player = {
       user: user1,
@@ -35,7 +37,8 @@ export class Game {
     this.players.push(player1);
     this.players.push(player2);
     this.index = uuid();
-    this.turn = this.getRandomUser(player1, player2);
+    this.isSingleGame = isSingleGame;
+    this.turn = this.getFist(player1, player2);
   }
 
   private createEmptyField(): Field {
@@ -50,8 +53,14 @@ export class Game {
     return grid;
   }
 
-  private getRandomUser(player1: Player, player2: Player): Player {
-    return Math.random() < 0.5 ? player1 : player2;
+  private getFist(player1: Player, player2: Player): Player {
+    if (player1.user.type === UserType.BOT) {
+      return player2;
+    }
+    if (player2.user.type === UserType.BOT) {
+      return player1;
+    }
+    return getRandomValue(player1, player2);
   }
 
   public isPlayersReadyToStart(): boolean {
@@ -72,6 +81,14 @@ export class Game {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
     }
     return player;
+  }
+
+  public getBot(): User {
+    const player = this.players.find((player) => player.user.type === UserType.BOT);
+    if (!player) {
+      throw Error(ERRORS.GAME_DATA_NOT_FOUND);
+    }
+    return player.user;
   }
 
   private getAnotherPlayer(player: Player): Player {
@@ -97,13 +114,13 @@ export class Game {
     });
   }
 
-  public addShips(user: User, shipsPosition: ShipPosition[]): void {
+  public addShips(user: User, shipPositions: ShipPosition[]): void {
     const player = this.getPlayer(user);
     if (!player) {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
     }
-    player.shipsPosition = shipsPosition;
-    player.ships = shipsPosition.map((position) => new Ship(position));
+    player.shipsPosition = shipPositions;
+    player.ships = shipPositions.map((position) => new Ship(position));
 
     this.placePlayersShipsOnTheField(player);
   }

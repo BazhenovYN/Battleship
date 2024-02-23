@@ -20,7 +20,7 @@ type InnerDataUpdateWinners = InnerDataBase<ServerMessageType.UPDATE_WINNERS> & 
 type InnerDataCreateGame = InnerDataBase<ServerMessageType.CREATE_GAME> & {
   payload: {
     game: Game;
-    player: User;
+    user: User;
   };
 };
 

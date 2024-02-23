@@ -5,6 +5,11 @@ export const enum RoomStatus {
   CLOSE = 'close',
 }
 
+export const enum UserType {
+  HUMAN = 'human',
+  BOT = 'bot',
+}
+
 export interface Player {
   user: User;
   shipsPosition: ShipPosition[];
@@ -12,14 +17,12 @@ export interface Player {
   field: Field;
 }
 
-export type Field = (Ship | null)[][];
+export type Coordinates = {
+  x: number;
+  y: number;
+};
 
-export const enum ShipType {
-  SMALL = 'small',
-  MEDIUM = 'medium',
-  LARGE = 'large',
-  HUGE = 'huge',
-}
+export type Field = (Ship | null)[][];
 
 export const enum ShipDirection {
   HORIZONTALLY = 'horizontally',
@@ -27,13 +30,9 @@ export const enum ShipDirection {
 }
 
 export interface ShipPosition {
-  position: {
-    x: number;
-    y: number;
-  };
+  position: Coordinates;
   direction: boolean;
   length: number;
-  type: ShipType;
 }
 
 export const enum AttackStatus {

@@ -8,10 +8,10 @@ export class Room {
   public status: RoomStatus;
   public game: Game | null = null;
 
-  constructor(user: User) {
+  constructor(user: User, isOpen: boolean) {
     this.index = uuid();
     this.users.push(user);
-    this.status = RoomStatus.OPEN;
+    this.status = isOpen ? RoomStatus.OPEN : RoomStatus.CLOSE;
   }
 
   public addPlayer(user: User): void {
@@ -20,8 +20,8 @@ export class Room {
     }
   }
 
-  public createNewGame(): Game {
-    this.game = new Game(this.users);
+  public createNewGame(isSingleGame = false): Game {
+    this.game = new Game(this.users, isSingleGame);
     this.status = RoomStatus.CLOSE;
     return this.game;
   }

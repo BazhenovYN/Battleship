@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { Coordinates } from './types';
 
 export const hash = (data: string): string => {
   return createHash('sha256').update(data).digest('hex');
@@ -6,7 +7,7 @@ export const hash = (data: string): string => {
 
 export const uuid = (): number => Date.now();
 
-export const getRandomCoordinates = (max: number) => {
+export const getRandomCoordinates = (max: number): Coordinates => {
   return {
     x: getRandomInt(0, max),
     y: getRandomInt(0, max),
@@ -14,3 +15,9 @@ export const getRandomCoordinates = (max: number) => {
 };
 const getRandomInt = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min) + min);
+
+export const randomBoolean = () => Math.random() < 0.5;
+
+export const getRandomValue = <T>(value1: T, value2: T): T => {
+  return randomBoolean() ? value1 : value2;
+};

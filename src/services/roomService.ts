@@ -6,9 +6,16 @@ export const getOpenedRooms = (): Room[] => {
   return db.getAllRooms().filter((room) => room.status === RoomStatus.OPEN);
 };
 
-export const createNewRoom = (user: User): void => {
-  const newRoom = new Room(user);
+export const createNewRoom = (user: User): Room => {
+  const newRoom = new Room(user, true);
   db.addRoom(newRoom);
+  return newRoom;
+};
+
+export const createNewPrivateRoom = (user: User): Room => {
+  const newRoom = new Room(user, false);
+  db.addRoom(newRoom);
+  return newRoom;
 };
 
 export const addUserToRoom = (user: User, roomId: number): Room => {
