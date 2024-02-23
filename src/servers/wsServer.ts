@@ -10,9 +10,21 @@ export const startWsServer = (port: number) => {
     console.log(MESSAGES.CLIENT_CONNECTED);
     const userId = uuid();
 
-    ws.on('message', (message) => requestController.handleClientMessage(wss, ws, userId, message));
+    ws.on('message', (message) => {
+      try {
+        requestController.handleClientMessage(wss, ws, userId, message);
+      } catch (error) {
+        console.error(error);
+      }
+    });
 
-    ws.on('close', () => requestController.handleDisconnect(wss, userId));
+    ws.on('close', () => {
+      try {
+        requestController.handleDisconnect(wss, userId);
+      } catch (error) {
+        console.error(error);
+      }
+    });
 
     ws.onerror = () => console.error;
   });
