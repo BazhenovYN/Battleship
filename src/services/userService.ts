@@ -30,7 +30,7 @@ const createNewUser = (name: string, password: string, ws: WebSocket, userId: nu
 };
 
 export const getWinners = (): User[] => {
-  return db.getAllUsers();
+  return db.getAllUsers().filter((user) => user.type === UserType.HUMAN);
 };
 
 export const createNewBot = (): User => {

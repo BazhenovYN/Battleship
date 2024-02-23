@@ -7,6 +7,8 @@ export const SHIP_WIDTH = 1;
 
 export const FIELD_SIZE = 10;
 
+export const BOT_DELAY = 2000;
+
 export const ERRORS = {
   UNKNOWN_MESSAGE_TYPE: 'Unknown message type',
   GAME_DATA_NOT_FOUND: 'Game data not found',

@@ -1,8 +1,8 @@
 import { Server, WebSocket } from 'ws';
 
-import { ERRORS, FIELD_SIZE } from '../../const';
+import { BOT_DELAY, ERRORS, FIELD_SIZE } from '../../const';
 import { gameService, roomService, userService } from '../../services';
-import { AttackResult, Game, ServerMessageType, ShipPosition, User } from '../../types';
+import { Game, ServerMessageType, ShipPosition, User } from '../../types';
 import { getRandomCoordinates } from '../../utils';
 import { send } from './sendMessage';
 
@@ -134,7 +134,7 @@ export const deleteUserRooms = (wss: Server, user: User) => {
   send(wss.clients, { type: ServerMessageType.UPDATE_ROOM, payload: roomService.getOpenedRooms() });
 };
 
-export const startSinglePlay = (ws: WebSocket, user: User | null) => {
+export const startSinglePlay = (user: User | null) => {
   if (!user) {
     throw new Error(ERRORS.USER_NOT_FOUND);
   }
@@ -169,27 +169,29 @@ const checkGameOver = (wss: Server, user: User, game: Game) => {
 
 const botAttack = (wss: Server, user: User, game: Game) => {
   const bot = game.getBot();
-  const results: AttackResult[] = [];
 
-  while (game.getTurn() !== user) {
+  setTimeout(function attack(): void {
     const { x, y } = getRandomCoordinates(FIELD_SIZE);
-    results.push(...game.attack(bot, x, y));
-  }
-
-  results.forEach((cell) => {
-    send(user.connection, {
-      type: ServerMessageType.ATTACK,
-      payload: {
-        position: { x: cell.x, y: cell.y },
-        user: bot,
-        status: cell.status,
-      },
+    const results = game.attack(bot, x, y);
+    results.forEach((cell) => {
+      send(user.connection, {
+        type: ServerMessageType.ATTACK,
+        payload: {
+          position: { x: cell.x, y: cell.y },
+          user: bot,
+          status: cell.status,
+        },
+      });
+      send(user.connection, {
+        type: ServerMessageType.TURN,
+        payload: user,
+      });
     });
-    send(user.connection, {
-      type: ServerMessageType.TURN,
-      payload: user,
-    });
-  });
 
-  checkGameOver(wss, user, game);
+    checkGameOver(wss, user, game);
+
+    if (!game.gameOver && game.getTurn() === bot) {
+      setTimeout(attack, BOT_DELAY);
+    }
+  }, BOT_DELAY);
 };

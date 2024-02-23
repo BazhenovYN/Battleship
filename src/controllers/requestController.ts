@@ -51,7 +51,7 @@ export const handleClientMessage = (
       randomAttack(wss, currentUser, data.gameId);
       break;
     case ClientMessageType.SINGLE_PLAY:
-      startSinglePlay(ws, currentUser);
+      startSinglePlay(currentUser);
       break;
 
     default:
