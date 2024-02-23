@@ -27,12 +27,14 @@ export class Game {
       shipsPosition: [],
       ships: [],
       field: this.createEmptyField(),
+      shots: [],
     };
     const player2: Player = {
       user: user2,
       shipsPosition: [],
       ships: [],
       field: this.createEmptyField(),
+      shots: [],
     };
 
     this.players.push(player1);
@@ -98,10 +100,6 @@ export class Game {
     return this.players[newIndex];
   }
 
-  private getVictim(attacker: Player): Player {
-    return this.getAnotherPlayer(attacker);
-  }
-
   private placePlayersShipsOnTheField(player: Player): void {
     player.ships.forEach((ship) => {
       const { x, y } = ship.position;
@@ -134,7 +132,7 @@ export class Game {
     return this.turn.user === user;
   }
 
-  private getKillZone(field: Field, ship: Ship): AttackResult[] {
+  private getKillZone(attacker: Player, victim: Player, ship: Ship): AttackResult[] {
     const killZone: AttackResult[] = [];
 
     const width = ship.direction === ShipDirection.HORIZONTALLY ? ship.length : SHIP_WIDTH;
@@ -147,11 +145,12 @@ export class Game {
         if (x + i < 0 || x + i >= FIELD_SIZE || y + j < 0 || y + j >= FIELD_SIZE) {
           continue;
         }
-        if (field[y + j][x + i] === null) {
+        if (victim.field[y + j][x + i] === null) {
           killZone.push({ x: x + i, y: y + j, status: AttackStatus.MISS });
-          continue;
+        } else {
+          killZone.push({ x: x + i, y: y + j, status: AttackStatus.KILLED });
         }
-        killZone.push({ x: x + i, y: y + j, status: AttackStatus.KILLED });
+        attacker.shots.push({ x: x + i, y: y + j });
       }
     }
     return killZone;
@@ -167,7 +166,7 @@ export class Game {
     this.gameOver = true;
   }
 
-  public CheckGameOver(attacker: Player, victim: Player): void {
+  private checkGameOver(attacker: Player, victim: Player): void {
     const isGameOver = victim.ships.every((ship) => ship.isDestroyed);
     if (isGameOver) {
       this.finishGame(victim.user, attacker.user);
@@ -180,10 +179,16 @@ export class Game {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
     }
 
-    const victim = this.getVictim(attacker);
+    const victim = this.getAnotherPlayer(attacker);
     if (!victim) {
       throw Error(ERRORS.GAME_DATA_NOT_FOUND);
     }
+
+    if (this.isDumbShot(attacker, x, y)) {
+      return [];
+    }
+
+    attacker.shots.push({ x, y });
 
     const ship = victim.field[y][x];
 
@@ -198,8 +203,13 @@ export class Game {
       return [{ x, y, status }];
     }
 
-    this.CheckGameOver(attacker, victim);
+    this.checkGameOver(attacker, victim);
 
-    return this.getKillZone(victim.field, ship);
+    return this.getKillZone(attacker, victim, ship);
+  }
+
+  private isDumbShot(player: Player, x: number, y: number): boolean {
+    const shot = player.shots.find((shot) => shot.x === x && shot.y === y);
+    return !!shot;
   }
 }

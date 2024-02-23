@@ -15,6 +15,7 @@ export interface Player {
   shipsPosition: ShipPosition[];
   ships: Ship[];
   field: Field;
+  shots: Coordinates[];
 }
 
 export type Coordinates = {

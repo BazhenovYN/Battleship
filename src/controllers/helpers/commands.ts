@@ -2,7 +2,7 @@ import { Server, WebSocket } from 'ws';
 
 import { BOT_DELAY, ERRORS, FIELD_SIZE } from '../../const';
 import { gameService, roomService, userService } from '../../services';
-import { Game, ServerMessageType, ShipPosition, User } from '../../types';
+import { Game, ServerMessageType, ShipPosition, User, UserType } from '../../types';
 import { getRandomCoordinates } from '../../utils';
 import { send } from './sendMessage';
 
@@ -95,7 +95,7 @@ export const attack = (wss: Server, user: User | null, gameId: number, x: number
 
   const results = game.attack(user, x, y);
   const players = game.getPlayers();
-  const turn = game.getTurn();
+  const nextUser = game.getTurn();
 
   players.forEach((player) => {
     results.forEach((cell) => {
@@ -109,15 +109,15 @@ export const attack = (wss: Server, user: User | null, gameId: number, x: number
       });
       send(player.user.connection, {
         type: ServerMessageType.TURN,
-        payload: turn,
+        payload: nextUser,
       });
     });
   });
 
-  checkGameOver(wss, user, game);
+  checkGameOver(wss, game);
 
-  if (game.isSingleGame && turn !== user) {
-    botAttack(wss, user, game);
+  if (game.isSingleGame && !game.gameOver && nextUser.type === UserType.BOT) {
+    botAttack(wss, game);
   }
 };
 
@@ -125,7 +125,10 @@ export const randomAttack = (wss: Server, user: User | null, gameId: number) => 
   if (!user) {
     throw new Error(ERRORS.USER_NOT_FOUND);
   }
-  const { x, y } = getRandomCoordinates(FIELD_SIZE);
+  const game = gameService.getGameById(gameId);
+  const player = game.getPlayer(user);
+  const { x, y } = getRandomCoordinates(FIELD_SIZE, player.shots);
+
   attack(wss, user, gameId, x, y);
 };
 
@@ -152,12 +155,12 @@ export const disconnectUser = (wss: Server, user: User) => {
   user.closeConnection();
 
   const games = gameService.finishAllUserGames(user);
-  games.forEach((game) => checkGameOver(wss, user, game));
+  games.forEach((game) => checkGameOver(wss, game));
 
   deleteUserRooms(wss, user);
 };
 
-const checkGameOver = (wss: Server, user: User, game: Game) => {
+const checkGameOver = (wss: Server, game: Game) => {
   if (!game.gameOver) {
     return;
   }
@@ -176,31 +179,10 @@ const checkGameOver = (wss: Server, user: User, game: Game) => {
   });
 };
 
-const botAttack = (wss: Server, user: User, game: Game) => {
+const botAttack = (wss: Server, game: Game) => {
   const bot = game.getBot();
 
-  setTimeout(function attack(): void {
-    const { x, y } = getRandomCoordinates(FIELD_SIZE);
-    const results = game.attack(bot, x, y);
-    results.forEach((cell) => {
-      send(user.connection, {
-        type: ServerMessageType.ATTACK,
-        payload: {
-          position: { x: cell.x, y: cell.y },
-          user: bot,
-          status: cell.status,
-        },
-      });
-      send(user.connection, {
-        type: ServerMessageType.TURN,
-        payload: user,
-      });
-    });
-
-    checkGameOver(wss, user, game);
-
-    if (!game.gameOver && game.getTurn() === bot) {
-      setTimeout(attack, BOT_DELAY);
-    }
+  setTimeout(() => {
+    randomAttack(wss, bot, game.index);
   }, BOT_DELAY);
 };
