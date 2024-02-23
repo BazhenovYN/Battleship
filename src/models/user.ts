@@ -7,7 +7,7 @@ export class User {
   public index: number;
   public readonly name: string;
   public wins: number = 0;
-  public connection?: WebSocket;
+  public connection?: WebSocket | null;
   private readonly password: string;
 
   constructor(
@@ -35,5 +35,9 @@ export class User {
   public updateConnection(connection: WebSocket, id: number) {
     this.index = id;
     this.connection = connection;
+  }
+
+  public closeConnection() {
+    this.connection = null;
   }
 }

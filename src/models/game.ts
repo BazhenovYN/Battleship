@@ -18,6 +18,7 @@ export class Game {
   public isSingleGame: boolean;
   public turn: Player;
   public gameOver: boolean = false;
+  public winner: User | null = null;
 
   constructor(players: User[], isSingleGame: boolean) {
     const [user1, user2] = players;
@@ -156,11 +157,20 @@ export class Game {
     return killZone;
   }
 
+  public finishGame(loser: User, winner?: User) {
+    if (winner) {
+      this.winner = winner;
+    } else {
+      this.winner = this.getAnotherPlayer(this.getPlayer(loser)).user;
+    }
+    this.winner.win();
+    this.gameOver = true;
+  }
+
   public CheckGameOver(attacker: Player, victim: Player): void {
     const isGameOver = victim.ships.every((ship) => ship.isDestroyed);
     if (isGameOver) {
-      this.gameOver = true;
-      attacker.user.win();
+      this.finishGame(victim.user, attacker.user);
     }
   }
 

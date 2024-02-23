@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { ServerMessage, ServerMessageType, InnerData } from '../../types';
 
-export const send = (ws: WebSocket | Set<WebSocket> | undefined, innerData: InnerData) => {
+export const send = (ws: WebSocket | Set<WebSocket> | undefined | null, innerData: InnerData) => {
   if (!ws) {
     return;
   }
@@ -63,7 +63,7 @@ const adapt = (data: InnerData): ServerMessage['payload'] | null => {
       };
     case ServerMessageType.FINISH:
       return {
-        winPlayer: payload.index,
+        winPlayer: payload?.index ?? 0,
       };
     default:
       return null;

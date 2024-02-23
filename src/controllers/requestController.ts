@@ -8,7 +8,7 @@ import {
   addUserToRoom,
   attack,
   createNewRoom,
-  deleteUserRooms,
+  disconnectUser,
   randomAttack,
   registerUser,
   startSinglePlay,
@@ -68,5 +68,5 @@ export const handleDisconnect = (wss: Server, userId: number) => {
     return;
   }
 
-  deleteUserRooms(wss, user);
+  disconnectUser(wss, user);
 };

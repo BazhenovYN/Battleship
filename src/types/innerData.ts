@@ -51,7 +51,7 @@ type InnerDataAttack = InnerDataBase<ServerMessageType.ATTACK> & {
 };
 
 type InnerDataFinish = InnerDataBase<ServerMessageType.FINISH> & {
-  payload: User;
+  payload: User | null;
 };
 
 export type InnerData =

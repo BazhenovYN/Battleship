@@ -148,6 +148,15 @@ export const startSinglePlay = (user: User | null) => {
   });
 };
 
+export const disconnectUser = (wss: Server, user: User) => {
+  user.closeConnection();
+
+  const games = gameService.finishAllUserGames(user);
+  games.forEach((game) => checkGameOver(wss, user, game));
+
+  deleteUserRooms(wss, user);
+};
+
 const checkGameOver = (wss: Server, user: User, game: Game) => {
   if (!game.gameOver) {
     return;
@@ -158,7 +167,7 @@ const checkGameOver = (wss: Server, user: User, game: Game) => {
   players.forEach((player) => {
     send(player.user.connection, {
       type: ServerMessageType.FINISH,
-      payload: user,
+      payload: game.winner,
     });
   });
   send(wss.clients, {

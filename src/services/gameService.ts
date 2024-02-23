@@ -1,7 +1,7 @@
 import { userService } from '.';
 import { ERRORS } from '../const';
 import { db } from '../database';
-import { Game, Room, RoomStatus } from '../types';
+import { Game, Room, RoomStatus, User } from '../types';
 import shipSet from '../shipSet.json';
 
 export const createNewGame = (room: Room): Game => {
@@ -25,6 +25,21 @@ export const getGameById = (gameId: number): Game => {
     throw Error(ERRORS.GAME_DATA_NOT_FOUND);
   }
   return room.game;
+};
+
+export const finishAllUserGames = (user: User): Game[] => {
+  const games = db.getAllRooms().reduce<Game[]>((games, room) => {
+    if (room.users.indexOf(user) >= 0) {
+      if (room.game && !room.game.gameOver) {
+        games.push(room.game);
+      }
+    }
+    return games;
+  }, []);
+
+  games.forEach((game) => game.finishGame(user));
+
+  return games;
 };
 
 // const getRandomShipPosition = (): ShipPosition[] => {
