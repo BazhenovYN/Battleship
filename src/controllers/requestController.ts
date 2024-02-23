@@ -26,8 +26,6 @@ export const handleClientMessage = (
   userId: number,
   rawMessage: RawData
 ) => {
-  console.log(`Client message: ${String(rawMessage)}`);
-
   const currentUser = userService.getUserById(userId);
   const { type, data } = decodeClientMessage(String(rawMessage));
 

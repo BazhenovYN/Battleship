@@ -13,7 +13,6 @@ export const send = (ws: WebSocket | Set<WebSocket> | undefined | null, innerDat
       const data = adapt(innerData);
       if (data) {
         const message = generateServerMessage(type, data);
-        console.log('Server message:', message);
         client.send(message);
       }
     }
