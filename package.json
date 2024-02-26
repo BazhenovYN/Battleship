@@ -1,0 +1,41 @@
+{
+  "name": "battleship",
+  "version": "1.0.0",
+  "description": "Battleship server",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "webpack",
+    "start:dev": "nodemon",
+    "start:prod": "npm run build && node dist/bundle.js",
+    "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx,json}\""
+  },
+  "author": "Iurii Bazhenov",
+  "keywords": [
+    "node",
+    "websocket",
+    "battleship"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.20",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
