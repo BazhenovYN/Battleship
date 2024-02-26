@@ -1,3 +1,4 @@
 node_modules/
 dist/
 front/
+webpack.config.js

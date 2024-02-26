@@ -7,9 +7,11 @@
   },
   "main": "src/index.ts",
   "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "webpack",
     "start:dev": "nodemon",
-    "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx,json}\"",
-    "lint:fix": "eslint --fix \"./src/**/*.{js,jsx,ts,tsx,json}\""
+    "start:prod": "npm run build && node dist/bundle.js",
+    "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx,json}\""
   },
   "author": "Iurii Bazhenov",
   "keywords": [
@@ -27,8 +29,11 @@
     "eslint-config-prettier": "^9.1.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "ws": "^8.16.0"
